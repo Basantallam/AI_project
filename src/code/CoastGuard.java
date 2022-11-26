@@ -22,10 +22,10 @@ public class CoastGuard extends GenericSearch{
 //        solve("2,2;5;0,0;1,0;1,1,20","BF",false);
 
 //        testing backtrack
-//        Node grandpa=new Node(new Pair(5,6),5,0,null,null,10,6);
-//        Node parent= new Node(new Pair(5,6),6,1,null,grandpa,10,6);
-//        Node lastNode=new Node(new Pair(6,6),7,1,null,parent,10,6);
-//        System.out.println(backTrack(lastNode));
+        Node grandpa=new Node(new Pair(5,6),5,0,null,null,10,6);
+        Node parent= new Node(new Pair(5,6),6,1,null,grandpa,10,6);
+        Node lastNode=new Node(new Pair(6,6),7,1,null,parent,10,6);
+        System.out.println(backTrack(lastNode));
 
     }
 
@@ -213,7 +213,6 @@ public class CoastGuard extends GenericSearch{
     public static String backTrack(Node n){
         Node finalNode=n;
         //todo plan;deaths;retrieved;nodes refer to sheet
-        String plan="";//left,right,pickup,up,drop,down,retrieve
         StringBuilder sb= new StringBuilder("");
         int nodes=1;
        while(n.parent!=null){
@@ -224,6 +223,7 @@ public class CoastGuard extends GenericSearch{
            }
            nodes++;
        }
+       String plan=sb.reverse()+"";
        int deaths=calcDeaths(finalNode);
        int retrieved=finalNode.boxes;
 
