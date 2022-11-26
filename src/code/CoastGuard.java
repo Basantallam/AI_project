@@ -1,8 +1,5 @@
 package code;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class CoastGuard extends GenericSearch{
     static int passengers=0; // total number of passengers on all ships to calc el deaths
@@ -13,21 +10,23 @@ public class CoastGuard extends GenericSearch{
     static int [] dy = {0,0,-1,1};
     static int maxCapacity; // do not change ya gama3a!!
     public static void main(String[] args) {
-        String grid=genGrid();
-        solve(grid,"BF",false);
-        solve(grid,"ID",false);
-        solve(grid,"DF",false);
-        solve(grid,"GR1",false);
-        solve(grid,"GR2",false);
-        solve(grid,"AS1",false);
-        solve(grid,"AS2",false);
+//        String grid=genGrid();
+//        solve(grid,"BF",false);
+//        solve(grid,"ID",false);
+//        solve(grid,"DF",false);
+//        solve(grid,"GR1",false);
+//        solve(grid,"GR2",false);
+//        solve(grid,"AS1",false);
+//        solve(grid,"AS2",false);
+
+        solve("2,2;5;0,0;1,0;1,1,20","BF",false);
     }
 
     public static String solve(String grid, String strategy, boolean visualize) {
         Node initialNode = decode(grid);
         switch (strategy) {
             case ("BF"): {
-                bfs(initialNode);
+               backTrack( bfs(initialNode));
                 break;
             }
             case ("ID"): {
@@ -59,9 +58,17 @@ public class CoastGuard extends GenericSearch{
 
     }
     public static String genGrid(){
+        StringBuilder sb=new StringBuilder();
         int m = (int) (Math.random()*11)+5;
         int n = (int) (Math.random()*11)+5;
-        int[][]grid = new int[m][n];
+        int c = (int) (Math.random()*71)+30;
+        int cx=(int) (Math.random()*m);
+        int cy=(int) (Math.random()*n);
+        sb.append(m+","+n+";"+c+cx+cy);
+        int maxTotal =m*n;
+        int stationsNo= (int) (Math.random()*maxTotal-2)+1;
+        int passNo= (int) (Math.random()*maxTotal-stationsNo-1)+1;
+        //todo complete
 
         return "";
     }
@@ -118,6 +125,7 @@ public class CoastGuard extends GenericSearch{
         q.add(node);
         while (!q.isEmpty()){
             Node n = q.poll();
+//            System.out.println(n);
             if(isGoal(n)){
                 return n;
             }
@@ -127,37 +135,78 @@ public class CoastGuard extends GenericSearch{
             HashMap<Pair,Ship>ships= n.ships;
             for(int i=0;i<4;i++){
                 Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
-                if(isValid(newPosition)&&(n.parent.position).compareTo(newPosition)!=0){
+                if(isValid(newPosition)){
+//                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
                     q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
                 }
             }
             // ship, station, box
-            if(ships.containsKey(pos)){
-                int remPassengers=0;//todo change
+            if(ships.containsKey(pos)){//todo check time  w rempass relation
 
-                if(remPassengers <= 0){ // retrieve box and wreck ship
-
-                }else{//my cap pickup
-
+                Ship s = ships.get(pos);
+                int remPassengers=s.remPass-(time-s.lastTimeStamp);
+                if(remPassengers <= -20){ // wreck ship
+                    ships.remove(pos);
+                }else if(remPassengers<=0){//retrieve black box and remove ship
+                    q.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
+                }
+                else {//pickup
+                    if(remCapacity>0){
+                        Node childPickUp = pickUp(n, pos, time, remCapacity, ships, remPassengers);
+                        q.add(childPickUp);
+                    }
                 }
                 continue;
             }
-            if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff
+            if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
                 q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
             }
         }
         return null;
     }
-    public static Node retrieve(){
-        return null;
+
+    private static Node pickUp(Node n, Pair pos, int time, int remCapacity, HashMap<Pair, Ship> ships, int remPassengers) {//I am pickingUp at my state at time: time
+        int takenPassengers=Math.min(remPassengers, remCapacity);
+        Ship newShip = new Ship(time, remPassengers -takenPassengers);//todo check time wala time+1
+        Node childPickUp =new Node(pos, time +1, remCapacity -takenPassengers,deepCloneShip(ships, pos,newShip), n, n.boxes, n.saved);//removed saved as it is calculated in dropoff
+        return childPickUp;
     }
-    public static Node pickUp(){
-        return null;
+
+    static HashMap<Pair,Ship> deepCloneShip(HashMap<Pair,Ship> original,Pair pos,Ship newShip){//will clone hm and newship
+        HashMap<Pair,Ship> hm = new HashMap<>();
+        for (Pair key: original.keySet()) {
+            hm.put(key,original.get(key));
+        }
+       if(newShip!= null) {// add  new ship
+            hm.put(pos,newShip);
+       }else
+           hm.remove(pos);
+        return hm;
     }
+
     public static boolean isGoal(Node n){
-        return true;
+        if(n.remCap!=maxCapacity)return false;
+        boolean res=true;
+        ArrayList<Pair> toRemove=new ArrayList<>();
+        for (Pair key: n.ships.keySet()) {
+            Ship s =n.ships.get(key);
+            int remPassengers=s.remPass-(n.time-s.lastTimeStamp);
+            if(remPassengers <= -20)toRemove.add(key);
+            else {
+                res=false;
+                break;
+            }
+        }
+        for (Pair key: toRemove) {
+            n.ships.remove(key);
+        }
+        return res;
     }
-    public static String backTrack(){
+    public static String backTrack(Node n){
+       while(n!=null){
+           System.out.println(n.toString());
+           n=n.parent;
+       }
         return "";
     }
     private static boolean isValid(Pair pos){

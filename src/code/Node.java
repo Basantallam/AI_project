@@ -20,5 +20,15 @@ public class Node {
         this.saved=saved;
     }
 
-
+    @Override
+    public String toString() {
+        return "Node{" +
+                "position=" + position +
+                ", time=" + time +
+                ", remCap=" + remCap +
+                ", ships=" + ships +
+                ", boxes=" + boxes +
+                ", saved=" + saved +
+                '}';
+    }
 }

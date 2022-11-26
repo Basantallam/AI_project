@@ -8,4 +8,12 @@ public class Ship{
         lastTimeStamp=t;
         remPass=rem;
     }
+
+    @Override
+    public String toString() {
+        return "Ship{" +
+                "lastTimeStamp=" + lastTimeStamp +
+                ", remPass=" + remPass +
+                '}';
+    }
 }
