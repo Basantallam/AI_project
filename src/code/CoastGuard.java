@@ -19,14 +19,21 @@ public class CoastGuard extends GenericSearch{
 //        solve(grid,"AS1",false);
 //        solve(grid,"AS2",false);
 
-        solve("2,2;5;0,0;1,0;1,1,20","BF",false);
+//        solve("2,2;5;0,0;1,0;1,1,20","BF",false);
+
+//        testing backtrack
+//        Node grandpa=new Node(new Pair(5,6),5,0,null,null,10,6);
+//        Node parent= new Node(new Pair(5,6),6,1,null,grandpa,10,6);
+//        Node lastNode=new Node(new Pair(6,6),7,1,null,parent,10,6);
+//        System.out.println(backTrack(lastNode));
+
     }
 
     public static String solve(String grid, String strategy, boolean visualize) {
         Node initialNode = decode(grid);
         switch (strategy) {
             case ("BF"): {
-               backTrack( bfs(initialNode));
+               backTrack(bfs(initialNode));
                 break;
             }
             case ("ID"): {
@@ -204,13 +211,43 @@ public class CoastGuard extends GenericSearch{
         return res;
     }
     public static String backTrack(Node n){
+        Node finalNode=n;
         //todo plan;deaths;retrieved;nodes refer to sheet
         String plan="";//left,right,pickup,up,drop,down,retrieve
-       while(n!=null){
-           System.out.println(n.toString());
+        StringBuilder sb= new StringBuilder("");
+        int nodes=1;
+       while(n.parent!=null){
+           sb.append(findAction(n.parent,n).reverse());
            n=n.parent;
+           if(n.parent!=null){
+               sb.append(",");
+           }
+           nodes++;
        }
-        return "";
+       int deaths=calcDeaths(finalNode);
+       int retrieved=finalNode.boxes;
+
+        return plan+";"+deaths+";"+retrieved+";"+nodes;
+    }
+    public static StringBuilder findAction(Node parent, Node child){
+        if(parent.remCap> child.remCap)
+            return new StringBuilder("pickup");
+        if(parent.remCap< child.remCap)
+            return new StringBuilder("drop");
+        if(parent.position.x<child.position.x)
+            return new StringBuilder("down");
+        if(parent.position.x>child.position.x)
+            return new StringBuilder("up");
+        if(parent.position.y<child.position.y)
+            return new StringBuilder("right");
+        if(parent.position.y>child.position.y)
+            return new StringBuilder("left");
+        else
+            return new StringBuilder("retrieve");
+
+    }
+    public static int calcDeaths(Node node){
+        return passengers-node.saved;
     }
     private static boolean isValid(Pair pos){
         return pos.x>=0&&pos.y>=0&&pos.x<n&&pos.y<m;
