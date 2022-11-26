@@ -24,7 +24,7 @@ public class CoastGuardPublic {
 	String grid6 = "7,5;86;0,0;1,3,1,5,4,2;1,1,42,2,5,99,3,5,89;";
 	String grid7= "6,7;82;1,4;2,3;1,1,58,3,0,58,4,2,72;";
 	String grid8 = "6,6;74;1,1;0,3,1,0,2,0,2,4,4,0,4,2,5,0;0,0,78,3,3,5,4,3,40;";
-	String grid9 = "7,5;100;3,4;2,6,3,5;0,0,4,0,1,8,1,4,77,1,5,1,3,2,94,4,3,46;";
+	String grid9 = "7,5;100;3,4;2,6,3,5;0,0,4,0,1,8,1,4,77,1,5,1,1,6,55,3,2,94,4,3,46;";
 	String grid10= "10,6;59;1,7;0,0,2,2,3,0,5,3;1,3,69,3,4,80,4,7,94,4,9,14,5,2,39;";
 
 
@@ -79,7 +79,7 @@ public class CoastGuardPublic {
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid8, solution));
 	}
 
-	@Test(timeout = 200000)
+	@Test(timeout = 100000)
 	public void testa9() throws Exception {
 		String solution = CoastGuard.solve(grid9, "BF", false);
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid9, solution));
@@ -374,6 +374,8 @@ public class CoastGuardPublic {
 	}
 
 
+
+
 	@Test(timeout = 10000)
 	public void testg0() throws Exception {
 		String solution = CoastGuard.solve(grid0, "AS1", false);
@@ -495,8 +497,8 @@ public class CoastGuardPublic {
 		HashMap<String, Byte> ss = new HashMap<String, Byte>();
 		ArrayList<String> is = new ArrayList<String>();
 		byte s;
-		int r;
-		int d;
+		byte r;
+		byte d;
 		byte x00;
 		byte x01;
 		byte xc;
@@ -640,7 +642,7 @@ public class CoastGuardPublic {
 		for(int i = 0;i< st.length -1; i+=2) {
 			xyz.add(st[i]+","+st[i+1]);
 		}
-
+//
 		String[] sh = gridArray[4].split(",");
 		HashMap<String, Byte> m4 = new HashMap<String, Byte>();
 		for(int i = 0;i< sh.length -1; i+=3) {
@@ -682,4 +684,5 @@ public class CoastGuardPublic {
 		return s.cool() && s.d==blue && s.r==doors;
 	}
 }
+	
 
