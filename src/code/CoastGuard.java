@@ -1,6 +1,6 @@
 package code;
 
-public class CoastGuard extends GenericSearch{
+public class CoastGuard implements GenericSearch{
     static int passengers=0;
     static int rows=0;   //?
     static int columns=0; //?
@@ -59,10 +59,13 @@ public class CoastGuard extends GenericSearch{
                 break;
             }
 
-        }
         return "";
     }
     public static String genGrid(){
+        int m = (int) (Math.random()*11)+5;
+        int n = (int) (Math.random()*11)+5;
+        int[][]grid = new int[m][n];
+
         return "";
     }
     public static int[][] decode(String s){
