@@ -2,7 +2,6 @@ package code;
 
 public abstract class GenericSearch {
     public static void bfs(Node node){
-
     }
     public static void dfs(Node node, int limit){
 

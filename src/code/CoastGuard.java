@@ -2,8 +2,8 @@ package code;
 
 public class CoastGuard extends GenericSearch{
     static int passengers=0;
-    static int rows=0;   //?
-    static int columns=0; //?
+    static int rows=0;
+    static int columns=0;
     static int boatCapacity;
     static int initX;
     static int initY;
