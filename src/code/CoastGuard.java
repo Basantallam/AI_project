@@ -19,28 +19,24 @@ public class CoastGuard implements GenericSearch{
         solve(grid,"AS2",false);
     }
 
-    public static String solve(String grid, String strategy, boolean visualize){
-        int[][] gridArr=decode(grid);
-        Node initialNode=new Node(initX,initY);
-        switch (strategy){
-            case("BF"):
-            {
+    public static String solve(String grid, String strategy, boolean visualize) {
+        int[][] gridArr = decode(grid);
+        Node initialNode = new Node(initX, initY);
+        switch (strategy) {
+            case ("BF"): {
                 bfs(initialNode);
                 break;
             }
-            case("ID"):
-            {
+            case ("ID"): {
                 iterDeep(initialNode);
                 break;
             }
-            case("DF"):
-            {
-                dfs(initialNode,(int)1e9);
+            case ("DF"): {
+                dfs(initialNode, (int) 1e9);
                 break;
             }
-            case("GR1"):
-            {
-                greedy(initialNode,1);
+            case ("GR1"): {
+                greedy(initialNode, 1);
                 break;
             }
             case("GR2"):
