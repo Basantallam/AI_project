@@ -203,6 +203,7 @@ public class CoastGuard extends GenericSearch{
         return res;
     }
     public static String backTrack(Node n){
+        //todo plan;deaths;retrieved;nodes refer to sheet
        while(n!=null){
            System.out.println(n.toString());
            n=n.parent;
