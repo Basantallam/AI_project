@@ -1,7 +1,7 @@
 package code;
 
 import java.util.HashMap;
-public class Node {
+public class Node implements Comparable<Node>{
     Pair position;
     int time;
     int remCap; // remaining capacity of coast guard boat
@@ -9,6 +9,7 @@ public class Node {
     Node parent;
     int boxes;
     int saved;
+    int heuristic;
 
     public Node(Pair position, int time, int remCap, HashMap<Pair, Ship> ships, Node parent, int boxes, int saved) {
         this.position = position;
@@ -20,6 +21,12 @@ public class Node {
         this.saved=saved;
     }
 
+    public Node(Pair position, int time, int remCap, HashMap<Pair, Ship> ships, Node parent, int boxes, int saved,int heuristic) {
+        new Node(position,time,remCap,ships,parent,boxes,saved);
+        this.heuristic= heuristic;
+    }
+
+
     @Override
     public String toString() {
         return "Node{" +
@@ -30,5 +37,10 @@ public class Node {
                 ", boxes=" + boxes +
                 ", saved=" + saved +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        return this.heuristic-o.heuristic;
     }
 }

@@ -214,26 +214,31 @@ public class CoastGuard extends GenericSearch{
         return pos.x>=0&&pos.y>=0&&pos.x<n&&pos.y<m;
     }
 
-    public static Node dfs(Node node, int limit) {
+    public static Node dfs(Node n, int limit) {
         return null;
     }
 
-    public static Node iterDeep(Node node) {
+    public static Node iterDeep(Node n) {
         //for loop that calls dfs() with a greater depth every time
         return null;
     }
 
-    public static Node greedy(Node node, int heuristic) {
+    public static Node greedy(Node node, int heuristicChoice) {
+        node.heuristic=heuristicChoice==1?heuristic1(node): heuristic2(node);
+        PriorityQueue<Node> pq=new PriorityQueue<>();
+        pq.add(node);
+        while(!pq.isEmpty()){
 
+        }
         return null;
     }
 
 
-    public static Node Astar(Node node, int heuristic) {
+    public static Node Astar(Node node, int heuristicChoice) {
         return null;
 
     }
-    public int heuristic1(Node n){
+    private static int heuristic1(Node n){
         int res=0;
         int maxNoPassengers=-20;
         for (Ship s: n.ships.values()) {
@@ -248,7 +253,7 @@ public class CoastGuard extends GenericSearch{
         return res;
     }
 
-    public int heuristic2(Node node){
+    private static int heuristic2(Node n){
         return 0;
     }
 }
