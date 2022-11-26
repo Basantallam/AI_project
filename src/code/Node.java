@@ -10,6 +10,7 @@ public class Node implements Comparable<Node>{
     int boxes;
     int saved;
     int heuristic;
+    int cost;
 
     public Node(Pair position, int time, int remCap, HashMap<Pair, Ship> ships, Node parent, int boxes, int saved) {
         this.position = position;
@@ -41,6 +42,6 @@ public class Node implements Comparable<Node>{
 
     @Override
     public int compareTo(Node o) {
-        return this.heuristic-o.heuristic;
+        return (this.cost+ this.heuristic)-(o.cost+o.heuristic);
     }
 }
