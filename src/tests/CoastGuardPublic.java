@@ -1,13 +1,15 @@
 package tests;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 
-import code.CoastGuard;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
+import code.CoastGuard;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
