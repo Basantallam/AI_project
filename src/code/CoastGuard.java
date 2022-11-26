@@ -224,6 +224,7 @@ public class CoastGuard extends GenericSearch{
     }
 
     public static Node greedy(Node node, int heuristic) {
+
         return null;
     }
 
@@ -232,8 +233,19 @@ public class CoastGuard extends GenericSearch{
         return null;
 
     }
-    public int heuristic1(Node node){
-        return 0;
+    public int heuristic1(Node n){
+        int res=0;
+        int maxNoPassengers=-20;
+        for (Ship s: n.ships.values()) {
+            int remPassengers=s.remPass-(n.time-s.lastTimeStamp);
+            Math.max(maxNoPassengers,remPassengers);
+            if(remPassengers>0)
+                res+=3;
+            else if(remPassengers>-20)res+=1;
+        }
+        res=Math.min(res,maxNoPassengers+20);
+        if(res ==0) if(n.remCap!=maxCapacity)res=1;
+        return res;
     }
 
     public int heuristic2(Node node){
