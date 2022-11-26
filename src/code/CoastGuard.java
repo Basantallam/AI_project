@@ -1,6 +1,6 @@
 package code;
 
-public class CoastGuard implements GenericSearch{
+public class CoastGuard extends GenericSearch{
     static int passengers=0;
     static int rows=0;   //?
     static int columns=0; //?
@@ -9,54 +9,87 @@ public class CoastGuard implements GenericSearch{
     static int initY;
 
     public static void main(String[] args) {
-        CoastGuard cg=new CoastGuard();
         String grid=genGrid();
-        cg.solve(grid,"BF",false);
-        cg.solve(grid,"ID",false);
-        cg.solve(grid,"BF",false);
-        cg.solve(grid,"DF",false);
-        cg.solve(grid,"GR1",false);
-        cg.solve(grid,"GR2",false);
-        cg.solve(grid,"AS1",false);
-        cg.solve(grid,"AS2",false);
+        solve(grid,"BF",false);
+        solve(grid,"ID",false);
+        solve(grid,"DF",false);
+        solve(grid,"GR1",false);
+        solve(grid,"GR2",false);
+        solve(grid,"AS1",false);
+        solve(grid,"AS2",false);
     }
 
     public static String solve(String grid, String strategy, boolean visualize){
-        int[][] gridArr=makeGrid(grid);
+        int[][] gridArr=decode(grid);
+        Node initialNode=new Node(initX,initY);
+        switch (strategy){
+            case("BF"):
+            {
+                bfs(initialNode);
+                break;
+            }
+            case("ID"):
+            {
+                iterDeep(initialNode);
+                break;
+            }
+            case("DF"):
+            {
+                dfs(initialNode,(int)1e9);
+                break;
+            }
+            case("GR1"):
+            {
+                greedy(initialNode,1);
+                break;
+            }
+            case("GR2"):
+            {
+                greedy(initialNode,2);
+                break;
+            }
+            case("AS1"):
+            {
+                Astar(initialNode,1);
+                break;
+            }
+            case("AS2"):
+            {
+                Astar(initialNode,2);
+                break;
+            }
 
+        }
         return "";
     }
     public static String genGrid(){
         return "";
     }
-    public static int[][] makeGrid(String s){
-        passengers= 0; //count all passengers
+    public static int[][] decode(String s){
 
         return null;
     }
 
-    @Override
-    public void bfs(Node node) {
+
+    public static void bfs(Node node) {
 
     }
 
-    @Override
-    public void dfs(Node node, int limit) {
+
+    public static void dfs(Node node, int limit) {
 
     }
 
-    @Override
-    public void iterDeep(Node node) {
+    public static void iterDeep(Node node) {
+        //for loop that calls dfs() with a greater depth every time
+    }
+
+    public static void greedy(Node node, int heuristic) {
 
     }
 
-    @Override
-    public void greedy(Node node, int heuristic) {
 
-    }
-
-    @Override
-    public void Astar(Node node, int heuristic) {
+    public static void Astar(Node node, int heuristic) {
 
     }
     public int heuristic1(Node node){
