@@ -22,14 +22,18 @@ public class CoastGuard implements GenericSearch{
     }
 
     public static String solve(String grid, String strategy, boolean visualize){
-        int[][] gridArr=makeGrid(grid);
+        int[][] gridArr=decode(grid);
 
         return "";
     }
     public static String genGrid(){
+        int m = (int) (Math.random()*11)+5;
+        int n = (int) (Math.random()*11)+5;
+        int[][]grid = new int[m][n];
+
         return "";
     }
-    public static int[][] makeGrid(String s){
+    public static int[][] decode(String s){
         passengers= 0; //count all passengers
 
         return null;
