@@ -1,11 +1,17 @@
 package code;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class CoastGuard extends GenericSearch{
-    static int passengers=0; // total number of passengers on all ships
+    static int passengers=0; // total number of passengers on all ships to calc el deaths
     static HashSet<Pair>stations;
     static int n;
     static int m;
+    static int [] dx = {-1,1,0,0};
+    static int [] dy = {0,0,-1,1};
+    static int maxCapacity; // do not change ya gama3a!!
     public static void main(String[] args) {
         String grid=genGrid();
         solve(grid,"BF",false);
@@ -78,6 +84,7 @@ public class CoastGuard extends GenericSearch{
             }
             if(i==1){
                 capacity = Integer.parseInt(entity[0]);
+                maxCapacity=capacity;
 //                System.out.println("capacity: "+capacity);
                 continue;
             }
@@ -101,30 +108,78 @@ public class CoastGuard extends GenericSearch{
 //                System.out.println("Station position: "+x+" "+y);
             }
         }
-        return new Node(new Pair(initialX,initialY),0,capacity,ships,null);
+        return new Node(new Pair(initialX,initialY),0,capacity,ships,null,0,0);
 //        System.out.println("Total number of passengers "+passengers);
     }
 
 
-    public static void bfs(Node node) {
+    public static Node bfs(Node node) {
+        Queue<Node> q= new LinkedList<>();
+        q.add(node);
+        while (!q.isEmpty()){
+            Node n = q.poll();
+            if(isGoal(n)){
+                return n;
+            }
+            Pair pos = n.position;
+            int time= n.time;
+            int remCapacity= n.remCap;
+            HashMap<Pair,Ship>ships= n.ships;
+            for(int i=0;i<4;i++){
+                Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
+                if(isValid(newPosition)&&(n.parent.position).compareTo(newPosition)!=0){
+                    q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
+                }
+            }
+            // ship, station, box
+            if(ships.containsKey(pos)){
+                int remPassengers=0;//todo change
 
+                if(remPassengers <= 0){ // retrieve box and wreck ship
+
+                }else{//my cap pickup
+
+                }
+                continue;
+            }
+            if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff
+                q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
+            }
+        }
+        return null;
+    }
+    public static Node retrieve(){
+        return null;
+    }
+    public static Node pickUp(){
+        return null;
+    }
+    public static boolean isGoal(Node n){
+        return true;
+    }
+    public static String backTrack(){
+        return "";
+    }
+    private static boolean isValid(Pair pos){
+        return pos.x>=0&&pos.y>=0&&pos.x<n&&pos.y<m;
     }
 
-
-    public static void dfs(Node node, int limit) {
-
+    public static Node dfs(Node node, int limit) {
+        return null;
     }
 
-    public static void iterDeep(Node node) {
+    public static Node iterDeep(Node node) {
         //for loop that calls dfs() with a greater depth every time
+        return null;
     }
 
-    public static void greedy(Node node, int heuristic) {
-
+    public static Node greedy(Node node, int heuristic) {
+        return null;
     }
 
 
-    public static void Astar(Node node, int heuristic) {
+    public static Node Astar(Node node, int heuristic) {
+        return null;
 
     }
     public int heuristic1(Node node){

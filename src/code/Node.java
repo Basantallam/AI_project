@@ -7,13 +7,17 @@ public class Node {
     int remCap; // remaining capacity of coast guard boat
     HashMap <Pair, Ship> ships;
     Node parent;
+    int boxes;
+    int saved;
 
-    public Node(Pair position, int time, int remCap, HashMap<Pair, Ship> ships, Node parent) {
+    public Node(Pair position, int time, int remCap, HashMap<Pair, Ship> ships, Node parent, int boxes, int saved) {
         this.position = position;
         this.time = time;
         this.remCap = remCap;
         this.ships = ships;
         this.parent = parent;
+        this.boxes= boxes;
+        this.saved=saved;
     }
 
 
