@@ -133,13 +133,6 @@ public class CoastGuard extends GenericSearch{
             int time= n.time;
             int remCapacity= n.remCap;
             HashMap<Pair,Ship>ships= n.ships;
-            for(int i=0;i<4;i++){
-                Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
-                if(isValid(newPosition)){
-//                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
-                    q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
-                }
-            }
             // ship, station, box
             if(ships.containsKey(pos)){//todo check time  w rempass relation
 
@@ -161,6 +154,14 @@ public class CoastGuard extends GenericSearch{
             if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
                 q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
             }
+            for(int i=0;i<4;i++){
+                Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
+                if(isValid(newPosition)){
+//                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
+                    q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
+                }
+            }
+
         }
         return null;
     }
@@ -237,15 +238,6 @@ public class CoastGuard extends GenericSearch{
             int time= n.time;
             int remCapacity= n.remCap;
             HashMap<Pair,Ship>ships= n.ships;
-            for(int i=0;i<4;i++){
-                Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
-                if(isValid(newPosition)){
-//                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
-                    Node child = new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved);
-                    child.heuristic=heuristicChoice==1?heuristic1(child): heuristic2(child);
-                    pq.add(child);
-                }
-            }
             // ship, station, box
             if(ships.containsKey(pos)){//todo check time  w rempass relation
 
@@ -272,6 +264,16 @@ public class CoastGuard extends GenericSearch{
                 child.heuristic=heuristicChoice==1?heuristic1(child): heuristic2(child);
                 pq.add(child);
             }
+            for(int i=0;i<4;i++){
+                Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
+                if(isValid(newPosition)){
+//                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
+                    Node child = new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved);
+                    child.heuristic=heuristicChoice==1?heuristic1(child): heuristic2(child);
+                    pq.add(child);
+                }
+            }
+
         }
         return null;
     }
