@@ -205,6 +205,7 @@ public class CoastGuard extends GenericSearch{
     }
     public static String backTrack(Node n){
         //todo plan;deaths;retrieved;nodes refer to sheet
+        String plan="";//left,right,pickup,up,drop,down,retrieve
        while(n!=null){
            System.out.println(n.toString());
            n=n.parent;
@@ -279,7 +280,7 @@ public class CoastGuard extends GenericSearch{
     }
 
 
-    public static Node Astar(Node node, int heuristicChoice) {//costs = pickup=1 drop=2 retrieve=3 pos=4
+    public static Node Astar(Node node, int heuristicChoice) {//costs = pickup=1 drop=2 retrieve=3 pos=5
         node.heuristic=(heuristicChoice==1?heuristic1(node): heuristic2(node));
 
         PriorityQueue<Node> pq=new PriorityQueue<>();
