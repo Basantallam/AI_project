@@ -9,6 +9,8 @@ public class CoastGuard extends GenericSearch{
     static int [] dx = {-1,1,0,0};
     static int [] dy = {0,0,-1,1};
     static int maxCapacity; // do not change ya gama3a!!
+
+    static HashSet<State>vis ;
     public static void main(String[] args) {
 //        String grid=genGrid();
 //        solve(grid,"BF",false);
@@ -18,22 +20,33 @@ public class CoastGuard extends GenericSearch{
 //        solve(grid,"GR2",false);
 //        solve(grid,"AS1",false);
 //        solve(grid,"AS2",false);
+        String grid0 = "5,6;50;0,1;0,4,3,3;1,1,90;";
+        String gridTest = "3,2;50;0,1;0,2,1,2;1,1,90;";
+        String grid2X2="2,2;5;0,0;1,0;1,1,20;";
 
-//        solve("2,2;5;0,0;1,0;1,1,20","BF",false);
+
+        solve(gridTest,"BF",false);
+
 
 //        testing backtrack
-        Node grandpa=new Node(new Pair(5,6),5,0,null,null,10,6);
-        Node parent= new Node(new Pair(5,6),6,1,null,grandpa,10,6);
-        Node lastNode=new Node(new Pair(6,6),7,1,null,parent,10,6);
-        System.out.println(backTrack(lastNode));
-
+//        Node grandpa=new Node(new Pair(5,6),5,0,null,null,10,6);
+//        Node parent= new Node(new Pair(5,6),6,1,null,grandpa,10,6);
+//        Node lastNode=new Node(new Pair(6,6),7,1,null,parent,10,6);
+//        System.out.println(backTrack(lastNode));
     }
 
     public static String solve(String grid, String strategy, boolean visualize) {
         Node initialNode = decode(grid);
+        vis = new HashSet<>();
         switch (strategy) {
             case ("BF"): {
-               backTrack(bfs(initialNode));
+                Node lastNode= bfs(initialNode);
+                if((lastNode==null)){
+                    System.out.println("ANA NULL YA GEGO");
+                }
+                System.out.println("lastnode: "+lastNode);
+
+                backTrack(lastNode);
                 break;
             }
             case ("ID"): {
@@ -76,7 +89,6 @@ public class CoastGuard extends GenericSearch{
         int stationsNo= (int) (Math.random()*maxTotal-2)+1;
         int passNo= (int) (Math.random()*maxTotal-stationsNo-1)+1;
         //todo complete
-
         return "";
     }
     public static Node decode(String s){
@@ -90,9 +102,9 @@ public class CoastGuard extends GenericSearch{
         for(int  i=0;i< split.length;i++){
             if(split[i].length()==0)continue;
             String [] entity = split[i].split(",");
-            if(i==0){
-                n = Integer.parseInt(entity[0]);
-                m = Integer.parseInt(entity[1]);
+            if(i==0){//todo check grid dimensions
+                m = Integer.parseInt(entity[0]);
+                n = Integer.parseInt(entity[1]);
 //                System.out.println("rows: "+n+" columns: "+m);
                 continue;
             }
@@ -126,16 +138,21 @@ public class CoastGuard extends GenericSearch{
 //        System.out.println("Total number of passengers "+passengers);
     }
 
-
     public static Node bfs(Node node) {
         Queue<Node> q= new LinkedList<>();
         q.add(node);
         while (!q.isEmpty()){
             Node n = q.poll();
-//            System.out.println(n);
             if(isGoal(n)){
                 return n;
             }
+
+//            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+//                System.out.println("visited :"+n);
+//                continue;}
+//            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+//            System.out.println("poll :"+n);
+
             Pair pos = n.position;
             int time= n.time;
             int remCapacity= n.remCap;
@@ -148,24 +165,28 @@ public class CoastGuard extends GenericSearch{
                 if(remPassengers <= -20){ // wreck ship
                     ships.remove(pos);
                 }else if(remPassengers<=0){//retrieve black box and remove ship
-                    q.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
+                        q.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
+//                        vis.add(new State(pos, n.remCap,n.saved,n.boxes+1));
                 }
                 else {//pickup
                     if(remCapacity>0){
                         Node childPickUp = pickUp(n, pos, time, remCapacity, ships, remPassengers);
-                        q.add(childPickUp);
+                            q.add(childPickUp);
+//                            vis.add(new State(childPickUp.position,childPickUp.remCap,childPickUp.saved,childPickUp.boxes));
                     }
                 }
-                continue;
             }
+            else
             if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
-                q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
+                    q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
+//                    vis.add(new State(pos,maxCapacity,n.saved+(maxCapacity-remCapacity),n.boxes));
             }
             for(int i=0;i<4;i++){
                 Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
                 if(isValid(newPosition)){
 //                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
                     q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
+//                    vis.add(new State(newPosition,n.remCap, n.saved,n.boxes));
                 }
             }
 
@@ -295,8 +316,8 @@ public class CoastGuard extends GenericSearch{
                         pq.add(childPickUp);
                     }
                 }
-                continue;
             }
+            else
             if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
                 Node child=new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity));
                 child.heuristic=heuristicChoice==1?heuristic1(child): heuristic2(child);
@@ -353,8 +374,8 @@ public class CoastGuard extends GenericSearch{
                         pq.add(childPickUp);
                     }
                 }
-                continue;
             }
+            else
             if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
                 Node child=new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity));
                 child.heuristic=heuristicChoice==1?heuristic1(child): heuristic2(child);

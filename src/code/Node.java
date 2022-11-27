@@ -37,6 +37,7 @@ public class Node implements Comparable<Node>{
                 ", ships=" + ships +
                 ", boxes=" + boxes +
                 ", saved=" + saved +
+                (parent ==null?"":(", parent pos"+ parent.position ))+
                 '}';
     }
 
