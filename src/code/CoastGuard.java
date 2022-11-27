@@ -1,4 +1,7 @@
 package code;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 public class CoastGuard extends GenericSearch{
@@ -9,9 +12,9 @@ public class CoastGuard extends GenericSearch{
     static int [] dx = {-1,1,0,0};
     static int [] dy = {0,0,-1,1};
     static int maxCapacity; // do not change ya gama3a!!
-
+    static PrintWriter pw;
     static HashSet<State>vis ;
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 //        String grid=genGrid();
 //        solve(grid,"BF",false);
 //        solve(grid,"ID",false);
@@ -23,9 +26,10 @@ public class CoastGuard extends GenericSearch{
         String grid0 = "5,6;50;0,1;0,4,3,3;1,1,90;";
         String gridTest = "3,2;50;0,1;0,2,1,2;1,1,90;";
         String grid2X2="2,2;5;0,0;1,0;1,1,20;";
+        pw = new PrintWriter(new FileWriter("debug.out"));
+        decode(gridTest);
 
-
-        solve(gridTest,"BF",false);
+//        solve(gridTest,"BF",false);
 
 
 //        testing backtrack
@@ -99,25 +103,26 @@ public class CoastGuard extends GenericSearch{
         int capacity=0;
         int initialX=0;
         int initialY=0;
-        for(int  i=0;i< split.length;i++){
+        //String gridTest = "3,2;50;0,1;0,2,1,2;1,1,90;";
+        for(int  i=0;i< split.length;i++){//todo change
             if(split[i].length()==0)continue;
             String [] entity = split[i].split(",");
             if(i==0){//todo check grid dimensions
                 m = Integer.parseInt(entity[0]);
                 n = Integer.parseInt(entity[1]);
-//                System.out.println("rows: "+n+" columns: "+m);
+                System.out.println("rows: "+n+" columns: "+m);
                 continue;
             }
-            if(i==1){
+            if(i==1){//capacity
                 capacity = Integer.parseInt(entity[0]);
                 maxCapacity=capacity;
-//                System.out.println("capacity: "+capacity);
+                System.out.println("capacity: "+capacity);
                 continue;
             }
-            if(i==2){
+            if(i==2){//agent place
                 initialX = Integer.parseInt(entity[0]);
                 initialY = Integer.parseInt(entity[1]);
-//                System.out.println("initialX: "+initialX+" initialX: "+initialX);
+                System.out.println("initialX: "+initialX+" initialX: "+initialX);
                 continue;
             }
 
@@ -128,10 +133,10 @@ public class CoastGuard extends GenericSearch{
                 passengers+=shipCapacity;
                 Ship ship = new Ship(0,shipCapacity);
                 ships.put(new Pair(x,y),ship);
-//                System.out.println("Ship position: "+x+" "+y+" Capacity: "+shipCapacity);
+                System.out.println("Ship position: "+x+" "+y+" Capacity: "+shipCapacity);
             }else{
                 stations.add(new Pair(x,y));
-//                System.out.println("Station position: "+x+" "+y);
+                System.out.println("Station position: "+x+" "+y);
             }
         }
         return new Node(new Pair(initialX,initialY),0,capacity,ships,null,0,0);
@@ -151,7 +156,7 @@ public class CoastGuard extends GenericSearch{
 //                System.out.println("visited :"+n);
 //                continue;}
 //            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
-//            System.out.println("poll :"+n);
+            pw.println("poll :"+n);
 
             Pair pos = n.position;
             int time= n.time;
@@ -167,6 +172,7 @@ public class CoastGuard extends GenericSearch{
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                         q.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
 //                        vis.add(new State(pos, n.remCap,n.saved,n.boxes+1));
+                    pw.println("child : retrieve");
                 }
                 else {//pickup
                     if(remCapacity>0){
@@ -180,6 +186,8 @@ public class CoastGuard extends GenericSearch{
             if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
                     q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
 //                    vis.add(new State(pos,maxCapacity,n.saved+(maxCapacity-remCapacity),n.boxes));
+                pw.println("child : drop");
+
             }
             for(int i=0;i<4;i++){
                 Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
@@ -187,10 +195,15 @@ public class CoastGuard extends GenericSearch{
 //                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
                     q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
 //                    vis.add(new State(newPosition,n.remCap, n.saved,n.boxes));
+                    pw.println("child : move :"+newPosition);
                 }
+            }
+            if(time>14){//todo remove
+                pw.flush();pw.close();return null;
             }
 
         }
+
         return null;
     }
 
@@ -198,6 +211,8 @@ public class CoastGuard extends GenericSearch{
         int takenPassengers=Math.min(remPassengers, remCapacity);
         Ship newShip = new Ship(time, remPassengers -takenPassengers);//todo check time wala time+1
         Node childPickUp =new Node(pos, time +1, remCapacity -takenPassengers,deepCloneShip(ships, pos,newShip), n, n.boxes, n.saved);//removed saved as it is calculated in dropoff
+        pw.println("child : pickup ,remCapacity: "+childPickUp.remCap+" , shipPassenger :"+newShip.remPass);
+
         return childPickUp;
     }
 
