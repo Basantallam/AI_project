@@ -64,6 +64,9 @@ public class CoastGuard extends GenericSearch{
             case ("AS2"): {
                 return backTrack(Astar(initialNode, 2));
             }
+            case ("UC"): {
+                return backTrack(UniformCost(initialNode));
+            }
         }
             return "";
     }
@@ -386,6 +389,12 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+                continue;
+            }
+            expand++;
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+
             Pair pos = n.position;
             int time= n.time;
             int remCapacity= n.remCap;
@@ -425,6 +434,69 @@ public class CoastGuard extends GenericSearch{
 //                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
                     Node child = new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved);
                     child.heuristic=heuristicChoice==1?heuristic1(child): heuristic2(child);
+                    child.cost=n.cost+5;
+                    pq.add(child);
+                }
+            }
+
+        }
+        return null;
+    }
+    public static Node UniformCost(Node node) {//costs = pickup=1 drop=2 retrieve=3 pos=5
+
+        PriorityQueue<Node> pq=new PriorityQueue<>();
+        pq.add(node);
+        while (!pq.isEmpty()){
+            Node n = pq.poll();
+//            System.out.println(n);
+            if(isGoal(n)){
+                return n;
+            }
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+                continue;
+            }
+            expand++;
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+
+            Pair pos = n.position;
+            int time= n.time;
+            int remCapacity= n.remCap;
+            HashMap<Pair,Ship>ships= n.ships;
+            // ship, station, box
+            if(ships.containsKey(pos)){//todo check time  w rempass relation
+
+                Ship s = ships.get(pos);
+                int remPassengers=s.remPass-(time-s.lastTimeStamp);
+                if(remPassengers <= -20){ // wreck ship
+                    ships.remove(pos);
+                }else if(remPassengers<=0){//retrieve black box and remove ship
+                    Node child=new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved);
+
+                    child.cost=n.cost+3;
+                    pq.add(child);
+                }
+                else {//pickup
+                    if(remCapacity>0){
+                        Node childPickUp = pickUp(n, pos, time, remCapacity, ships, remPassengers);
+
+                        childPickUp.cost=n.cost+1;
+                        pq.add(childPickUp);
+                    }
+                }
+            }
+            else
+            if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
+                Node child=new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity));
+
+                child.cost=n.cost+2;
+                pq.add(child);
+            }
+            for(int i=0;i<4;i++){
+                Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
+                if(isValid(newPosition)){
+//                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
+                    Node child = new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved);
+
                     child.cost=n.cost+5;
                     pq.add(child);
                 }
