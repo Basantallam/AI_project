@@ -273,6 +273,7 @@ public class CoastGuard extends GenericSearch{
     public static Node dfs(Node node, int limit) {
         Stack<Node> stack= new Stack<>();
         stack.add(node);
+        vis = new HashSet<>();
         while (!stack.isEmpty()){
             Node n = stack.pop();
             if(isGoal(n)){
@@ -281,6 +282,7 @@ public class CoastGuard extends GenericSearch{
             if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
                 continue;
             }
+            if(n.time==limit)continue;
             expand++;
             vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
             Pair pos = n.position;
@@ -318,9 +320,14 @@ public class CoastGuard extends GenericSearch{
         return null;
     }
 
-    public static Node iterDeep(Node n) {
-        //for loop that calls dfs() with a greater depth every time
-        return null;
+    public static Node iterDeep(Node node) {
+        int limit=0;
+        while (true){
+           Node n = dfs(node,limit);
+           limit++;
+           if(n!=null)
+               return n;
+        }
     }
 
     public static Node greedy(Node node, int heuristicChoice) {
@@ -376,7 +383,6 @@ public class CoastGuard extends GenericSearch{
         }
         return null;
     }
-
 
     public static Node Astar(Node node, int heuristicChoice) {//costs = pickup=1 drop=2 retrieve=3 pos=5
         node.heuristic=(heuristicChoice==1?heuristic1(node): heuristic2(node));
