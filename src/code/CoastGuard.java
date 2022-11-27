@@ -14,6 +14,7 @@ public class CoastGuard extends GenericSearch{
     static int maxCapacity; // do not change ya gama3a!!
     static PrintWriter pw;
     static HashSet<State>vis ;
+    static int expand=0; // number of expanded nodes
     public static void main(String[] args) throws IOException {
 //        String grid=genGrid();
 //        solve(grid,"BF",false);
@@ -31,7 +32,6 @@ public class CoastGuard extends GenericSearch{
 
         solve(grid0,"BF",false);
 
-
 //        testing backtrack
 //        Node grandpa=new Node(new Pair(5,6),5,0,null,null,10,6);
 //        Node parent= new Node(new Pair(5,6),6,1,null,grandpa,10,6);
@@ -39,49 +39,35 @@ public class CoastGuard extends GenericSearch{
 //        System.out.println(backTrack(lastNode));
         pw.flush();pw.close();
     }
-
     public static String solve(String grid, String strategy, boolean visualize) {
         Node initialNode = decode(grid);
         vis = new HashSet<>();
         switch (strategy) {
             case ("BF"): {
-                Node lastNode= bfs(initialNode);
-                if((lastNode==null)){
-                    System.out.println("ANA NULL YA GEGO");
-                }
-                System.out.println("lastnode: "+lastNode);
-
-                backTrack(lastNode);
-                break;
+                return backTrack(bfs(initialNode));
             }
             case ("ID"): {
-                iterDeep(initialNode);
-                break;
+                return backTrack(iterDeep(initialNode));
             }
             case ("DF"): {
-                dfs(initialNode, (int) 1e9);
-                break;
+                return backTrack(dfs(initialNode, (int) 1e9));
             }
             case ("GR1"): {
-                greedy(initialNode, 1);
-                break;
+                return backTrack(greedy(initialNode, 1));
             }
             case ("GR2"): {
-                greedy(initialNode, 2);
-                break;
+                return backTrack(greedy(initialNode, 2));
             }
             case ("AS1"): {
-                Astar(initialNode, 1);
-                break;
+                return backTrack(Astar(initialNode, 1));
             }
             case ("AS2"): {
-                Astar(initialNode, 2);
-                break;
+                return backTrack(Astar(initialNode, 2));
             }
         }
             return "";
-
     }
+
     public static String genGrid(){
         StringBuilder sb=new StringBuilder();
         int m = (int) (Math.random()*11)+5;
@@ -96,6 +82,7 @@ public class CoastGuard extends GenericSearch{
         //todo complete
         return "";
     }
+
     public static Node decode(String s){
         passengers= 0; //count all passengers
         String [] split = s.split(";");
@@ -142,9 +129,6 @@ public class CoastGuard extends GenericSearch{
                         System.out.println("Ship position: "+x+" "+y+" Capacity: "+shipCapacity);
                     }break;
             }
-
-
-
         }
         return new Node(new Pair(initialX,initialY),0,capacity,ships,null,0,0);
 //        System.out.println("Total number of passengers "+passengers);
@@ -158,59 +142,43 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
-
             if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
-//                System.out.println("visited :"+n);
-                continue;}
+                continue;
+            }
+            expand++;
             vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
-//            pw.println("poll :"+n);
-
             Pair pos = n.position;
             int time= n.time;
             int remCapacity= n.remCap;
             HashMap<Pair,Ship>ships= n.ships;
             // ship, station, box
             if(ships.containsKey(pos)){//todo check time  w rempass relation
-
                 Ship s = ships.get(pos);
                 int remPassengers=s.remPass-(time-s.lastTimeStamp);
                 if(remPassengers <= -20){ // wreck ship
                     ships.remove(pos);
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                         q.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
-//                        vis.add(new State(pos, n.remCap,n.saved,n.boxes+1));
-//                    pw.println("child : retrieve");
                 }
                 else {//pickup
                     if(remCapacity>0){
                         Node childPickUp = pickUp(n, pos, time, remCapacity, ships, remPassengers);
-                            q.add(childPickUp);
-//                            vis.add(new State(childPickUp.position,childPickUp.remCap,childPickUp.saved,childPickUp.boxes));
+                        q.add(childPickUp);
                     }
                 }
             }
             else
             if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
                     q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
-//                    vis.add(new State(pos,maxCapacity,n.saved+(maxCapacity-remCapacity),n.boxes));
-//                pw.println("child : drop");
 
             }
             for(int i=0;i<4;i++){
                 Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
                 if(isValid(newPosition)){
-//                    &&(n.parent.position).compareTo(newPosition)!=0 //todo reduce redundant state esp in dfs
                     q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
-//                    vis.add(new State(newPosition,n.remCap, n.saved,n.boxes));
-//                    pw.println("child : move :"+newPosition);
                 }
             }
-//            if(time>14){//todo remove
-//                pw.flush();pw.close();return null;
-//            }
-
         }
-
         return null;
     }
 
@@ -219,7 +187,6 @@ public class CoastGuard extends GenericSearch{
         Ship newShip = new Ship(time, remPassengers -takenPassengers);//todo check time wala time+1
         Node childPickUp =new Node(pos, time +1, remCapacity -takenPassengers,deepCloneShip(ships, pos,newShip), n, n.boxes, n.saved);//removed saved as it is calculated in dropoff
 //        pw.println("child : pickup ,remCapacity: "+childPickUp.remCap+" , shipPassenger :"+newShip.remPass);
-
         return childPickUp;
     }
 
@@ -253,6 +220,7 @@ public class CoastGuard extends GenericSearch{
         }
         return res;
     }
+
     public static String backTrack(Node n){
         Node finalNode=n;
         //todo plan;deaths;retrieved;nodes refer to sheet
@@ -272,6 +240,7 @@ public class CoastGuard extends GenericSearch{
 
         return plan+";"+deaths+";"+retrieved+";"+nodes;
     }
+
     public static StringBuilder findAction(Node parent, Node child){
         if(parent.remCap> child.remCap)
             return new StringBuilder("pickup");
@@ -289,14 +258,60 @@ public class CoastGuard extends GenericSearch{
             return new StringBuilder("retrieve");
 
     }
+
     public static int calcDeaths(Node node){
         return passengers-node.saved;
     }
+
     private static boolean isValid(Pair pos){
         return pos.x>=0&&pos.y>=0&&pos.x<n&&pos.y<m;
     }
 
-    public static Node dfs(Node n, int limit) {
+    public static Node dfs(Node node, int limit) {
+        Stack<Node> stack= new Stack<>();
+        stack.add(node);
+        while (!stack.isEmpty()){
+            Node n = stack.pop();
+            if(isGoal(n)){
+                return n;
+            }
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+                continue;
+            }
+            expand++;
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+            Pair pos = n.position;
+            int time= n.time;
+            int remCapacity= n.remCap;
+            HashMap<Pair,Ship>ships= n.ships;
+            // ship, station, box
+            if(ships.containsKey(pos)){//todo check time  w rempass relation
+                Ship s = ships.get(pos);
+                int remPassengers=s.remPass-(time-s.lastTimeStamp);
+                if(remPassengers <= -20){ // wreck ship
+                    ships.remove(pos);
+                }else if(remPassengers<=0){//retrieve black box and remove ship
+                    stack.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
+                }
+                else {//pickup
+                    if(remCapacity>0){
+                        Node childPickUp = pickUp(n, pos, time, remCapacity, ships, remPassengers);
+                        stack.add(childPickUp);
+                    }
+                }
+            }
+            else
+            if(stations.contains(pos)&&remCapacity!=maxCapacity){ // dropOff and save the passengers on the boat
+                stack.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
+
+            }
+            for(int i=0;i<4;i++){
+                Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
+                if(isValid(newPosition)){
+                    stack.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
+                }
+            }
+        }
         return null;
     }
 

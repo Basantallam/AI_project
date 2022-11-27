@@ -13,7 +13,6 @@ public class State {
         this.savedSoFar=savedSoFar;
         this.boxes=boxes;
         this.remCap= remCap;
-
     }
 
     @Override
