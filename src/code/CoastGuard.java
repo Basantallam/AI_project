@@ -340,6 +340,11 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+                continue;
+            }
+            expand++;
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
             Pair pos = n.position;
             int time= n.time;
             int remCapacity= n.remCap;
@@ -478,7 +483,7 @@ public class CoastGuard extends GenericSearch{
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                     Node child=new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved);
 
-                    child.cost=n.cost+3;
+//                    child.cost=new Pair(n.cost.x+death,n.cost.y.box);//todo add cost
                     pq.add(child);
                 }
                 else {//pickup
@@ -511,7 +516,11 @@ public class CoastGuard extends GenericSearch{
         }
         return null;
     }
-    private static int heuristic1(Node n){
+
+    private static int manhattanDistance(Pair p1, Pair p2){
+        return Math.abs(p1.x-p2.x)+Math.abs(p1.y-p2.y);
+    }
+    private static int heuristic1Cool(Node n){
         int res=0;
         int maxNoPassengers=-20;
         for (Ship s: n.ships.values()) {
@@ -525,8 +534,29 @@ public class CoastGuard extends GenericSearch{
         if(res ==0) if(n.remCap!=maxCapacity)res=1;
         return res;
     }
+    private static int heuristic1(Node n){
+        int sum=0;
+        for (Pair p: n.ships.keySet()) {
+            Ship ship=n.ships.get(p);
+            int remPassengers=ship.remPass-(n.time-ship.lastTimeStamp);
+            int distToShip=manhattanDistance(n.position,p);
+            sum+=Math.min(Math.max(0,remPassengers),distToShip);
+        }
+        return sum;
+    }
 
     private static int heuristic2(Node n){ //similar but dominates heuristic 1
+        int sum=0;
+        for (Pair p: n.ships.keySet()) {
+            Ship ship=n.ships.get(p);
+            int remPassengers=ship.remPass-(n.time-ship.lastTimeStamp);
+            int distToShip=manhattanDistance(n.position,p);
+            if(remPassengers-distToShip <= -20)
+                sum++;
+        }
+        return sum;
+    }
+    private static int heuristic2Cool(Node n){ //similar but dominates heuristic 1
         int res=0;
         int maxNoPassengers=-20;
         for (Ship s: n.ships.values()) {
