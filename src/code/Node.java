@@ -9,9 +9,9 @@ public class Node implements Comparable<Node>{
     Node parent;
     int boxes;
     int saved;
-    int heuristic;
-//    Pair cost; //todo change cost to pair
-    int cost;
+    Pair heuristic;
+    Pair cost;
+
 
     public Node(Pair position, int time, int remCap, HashMap<Pair, Ship> ships, Node parent, int boxes, int saved) {
         this.position = position;
@@ -21,12 +21,11 @@ public class Node implements Comparable<Node>{
         this.parent = parent;
         this.boxes= boxes;
         this.saved=saved;
+        this.heuristic=new Pair(0,0);
+        this.cost=new Pair(0,0);
     }
 
-    public Node(Pair position, int time, int remCap, HashMap<Pair, Ship> ships, Node parent, int boxes, int saved,int heuristic) {
-        new Node(position,time,remCap,ships,parent,boxes,saved);
-        this.heuristic= heuristic;
-    }
+
 
 
     @Override
@@ -44,8 +43,6 @@ public class Node implements Comparable<Node>{
 
     @Override
     public int compareTo(Node o) {
-//        return this.cost.compareTo(o.cost)+this.heuristic-o.heuristic; //todo change to Pair
-        return (this.cost+ this.heuristic)-(o.cost+o.heuristic);
-
+        return (this.cost.add(this.heuristic)).compareTo(o.cost.add(o.heuristic));
     }
 }

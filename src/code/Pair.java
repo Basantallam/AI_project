@@ -16,6 +16,9 @@ public class Pair implements Comparable<Pair>{
         if(this.x==o.x)return this.y-o.y;
         return this.x-o.x;
     }
+    public Pair add (Pair o){
+        return new Pair(this.x+o.x,this.y+o.y);
+    }
 
     @Override
     public boolean equals(Object o) {
