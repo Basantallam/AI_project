@@ -35,9 +35,6 @@ public class Pair implements Comparable<Pair>{
 
     @Override
     public String toString() {
-        return "Pair{" +
-                "x=" + x +
-                ", y=" + y +
-                '}';
+        return "("+x+","+y+")";
     }
 }

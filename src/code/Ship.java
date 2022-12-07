@@ -17,12 +17,12 @@ public class Ship{
                 '}';
     }
     public boolean exists(int time){
-        return remPass-(time-lastTimeStamp)>CoastGuard.wreckTime;
+        return (remPass-(time-lastTimeStamp))>CoastGuard.wreckTime;
     }
     public String visualize(int time){
         int rem = remPass-(time-lastTimeStamp);
         int passengersAlive = rem>0?rem:0;
         int boxDamage = rem>0?0:Math.abs(rem)+1;
-        return "Passengers alive : "+passengersAlive+", Black Box Damage : "+boxDamage;
+        return "Passengers alive :"+passengersAlive+", Black Box Damage :"+boxDamage;
     }
 }
