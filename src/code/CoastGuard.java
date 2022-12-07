@@ -12,11 +12,11 @@ public class CoastGuard extends GenericSearch{
     static int [] dx = {-1,1,0,0};
     static int [] dy = {0,0,-1,1};
     static int maxCapacity; // do not change ya gama3a!!
-    static PrintWriter pw;
+    static PrintWriter pw = new PrintWriter(System.out);
     static HashSet<State>vis ;
     static int expand=0; // number of expanded nodes
 
-    static int wreckTime =-19;
+    final static int wreckTime =-19;
     public static void main(String[] args) throws IOException {
 //        String grid=genGrid();
 //        solve(grid,"BF",false);
@@ -29,7 +29,7 @@ public class CoastGuard extends GenericSearch{
         String grid0 = "5,6;50;0,1;0,4,3,3;1,1,90;";
         String gridTest = "3,2;50;0,1;0,2,1,2;1,1,90;";
         String grid2X2="2,2;5;0,0;1,0;1,1,20;";
-        pw = new PrintWriter(new FileWriter("debug.out"));
+
 //        decode(gridTest);
 
         solve(grid0,"BF",false);
@@ -44,33 +44,33 @@ public class CoastGuard extends GenericSearch{
     public static String solve(String grid, String strategy, boolean visualize) {
         Node initialNode = decode(grid);
         vis = new HashSet<>();
-        System.out.println(strategy);
         switch (strategy) {
             case ("BF"): {
-                return backTrack(bfs(initialNode));
+                return backTrack(bfs(initialNode),visualize);
             }
             case ("ID"): {
-                return backTrack(iterDeep(initialNode));
+                return backTrack(iterDeep(initialNode),visualize);
             }
             case ("DF"): {
-                return backTrack(dfs(initialNode, (int) 1e9));
+                return backTrack(dfs(initialNode, (int) 1e9),visualize);
             }
             case ("GR1"): {
-                return backTrack(greedy(initialNode, 1));
+                return backTrack(greedy(initialNode, 1),visualize);
             }
             case ("GR2"): {
-                return backTrack(greedy(initialNode, 2));
+                return backTrack(greedy(initialNode, 2),visualize);
             }
             case ("AS1"): {
-                return backTrack(Astar(initialNode, 1));
+                return backTrack(Astar(initialNode, 1),visualize);
             }
             case ("AS2"): {
-                return backTrack(Astar(initialNode, 2));
+                return backTrack(Astar(initialNode, 2),visualize);
             }
             case ("UC"): {
-                return backTrack(UniformCost(initialNode));
+                return backTrack(UniformCost(initialNode),visualize);
             }
         }
+        pw.flush();pw.close();
             return "";
     }
 
@@ -163,7 +163,7 @@ public class CoastGuard extends GenericSearch{
                 Ship s = ships.get(pos);
                 int remPassengers=s.remPass-(time-s.lastTimeStamp);
                 if(remPassengers <= wreckTime){ // wreck ship
-                    ships.remove(pos);
+                    n.ships=deepCloneShip(ships,pos,null);
                 }else if(remPassengers<=0){//retrieve black box and remove ship //todo check
                         q.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
                 }
@@ -223,13 +223,16 @@ public class CoastGuard extends GenericSearch{
                 break;
             }
         }
+
         for (Pair key: toRemove) {
-            n.ships.remove(key);
+            n.ships=deepCloneShip(n.ships,key,null);
         }
         return res;
+
     }
 
-    public static String backTrack(Node n){
+    public static String backTrack(Node n,boolean visualize){
+         Stack stackViz =new Stack<>();
         Node finalNode=n;
 
         //todo plan;deaths;retrieved;nodes refer to sheet
@@ -237,7 +240,9 @@ public class CoastGuard extends GenericSearch{
         StringBuilder sbDebug= new StringBuilder("");
         int nodes=1;
        while(n.parent!=null){
-           sb.append(findAction(n.parent,n).reverse());
+           StringBuilder action=findAction(n.parent,n);
+           sb.append(action.reverse());
+           if(visualize)visualize(n,action);
 //           String pos="("+n.parent.position.x+","+n.parent.position.y+")";
 //           sbDebug.append(findAction(n.parent,n).reverse());
 //           sbDebug.append(new StringBuilder(pos).reverse());
@@ -245,16 +250,22 @@ public class CoastGuard extends GenericSearch{
            if(n.parent!=null){
                sb.append(",");
 //               sbDebug.append(",");
-
            }
            nodes++;
        }
        String plan=sb.reverse()+"";
        int deaths=calcDeaths(finalNode);
        int retrieved=finalNode.boxes;
-
         System.out.println(plan+";"+deaths+";"+retrieved+";"+expand);//todo remove print
+
         return plan+";"+deaths+";"+retrieved+";"+expand;
+    }
+
+    private static void visualize(Node n, StringBuilder action) {
+        StringBuilder print = new StringBuilder("");
+        print.append("Time :"+n.time);
+//        n.ships.size()!=0?pw.print("Ships at :"+);
+        System.out.println(print);
     }
 
     public static StringBuilder findAction(Node parent, Node child){
@@ -307,7 +318,7 @@ public class CoastGuard extends GenericSearch{
                 Ship s = ships.get(pos);
                 int remPassengers=s.remPass-(time-s.lastTimeStamp);
                 if(remPassengers <= wreckTime){ // wreck ship
-                    ships.remove(pos);
+                    n.ships=deepCloneShip(ships,pos,null);
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                     stack.add(new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved));
                 }
@@ -368,7 +379,7 @@ public class CoastGuard extends GenericSearch{
                 Ship s = ships.get(pos);
                 int remPassengers=s.remPass-(time-s.lastTimeStamp);
                 if(remPassengers <= wreckTime){ // wreck ship
-                    ships.remove(pos);
+                    n.ships = deepCloneShip(ships,pos,null);
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                     Node child=new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved);
                     child.heuristic=heuristicChoice==1?heuristic1(child): heuristic2(child);
@@ -451,7 +462,7 @@ public class CoastGuard extends GenericSearch{
                 Ship s = ships.get(pos);
                 int remPassengers=s.remPass-(time-s.lastTimeStamp);
                 if(remPassengers <= wreckTime){ // wreck ship
-                    ships.remove(pos);
+                    n.ships=deepCloneShip(ships,pos,null);
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                     Node child=new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved);
                     child.heuristic=(heuristicChoice==1?heuristic1(child): heuristic2(child));
@@ -515,7 +526,7 @@ public class CoastGuard extends GenericSearch{
                 Ship s = ships.get(pos);
                 int remPassengers=s.remPass-(time-s.lastTimeStamp);
                 if(remPassengers <= wreckTime){ // wreck ship
-                    ships.remove(pos);
+                    n.ships=deepCloneShip(ships,pos,null);
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                     Node child=new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved);
 
