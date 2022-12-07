@@ -16,7 +16,7 @@ public class CoastGuard extends GenericSearch{
     static HashSet<State>vis ;
     static int expand=0; // number of expanded nodes
 
-    static int wreckTime =-20;
+    static int wreckTime =-19;
     public static void main(String[] args) throws IOException {
 //        String grid=genGrid();
 //        solve(grid,"BF",false);
@@ -191,8 +191,8 @@ public class CoastGuard extends GenericSearch{
 
     private static Node pickUp(Node n, Pair pos, int time, int remCapacity, HashMap<Pair, Ship> ships, int remPassengers) {//I am pickingUp at my state at time: time
         int takenPassengers=Math.min(remPassengers, remCapacity);
-//        Ship newShip = new Ship(takenPassengers==remPassengers?time+1:time, remPassengers -takenPassengers);//todo check time wala time+1
-        Ship newShip = new Ship(time, remPassengers -takenPassengers);//todo check time wala time+1
+        Ship newShip = new Ship(takenPassengers==remPassengers?time+1:time, remPassengers -takenPassengers);//todo check time wala time+1
+//        Ship newShip = new Ship(time, remPassengers -takenPassengers);//todo check time wala time+1
         Node childPickUp =new Node(pos, time +1, remCapacity -takenPassengers,deepCloneShip(ships, pos,newShip), n, n.boxes, n.saved);//removed saved as it is calculated in dropoff
 //        pw.println("child : pickup ,remCapacity: "+childPickUp.remCap+" , shipPassenger :"+newShip.remPass);
         return childPickUp;
@@ -432,7 +432,6 @@ public class CoastGuard extends GenericSearch{
         pq.add(node);
         while (!pq.isEmpty()){
             Node n = pq.poll();
-//            System.out.println(n);
             if(isGoal(n)){
                 return n;
             }
