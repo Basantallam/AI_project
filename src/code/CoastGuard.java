@@ -12,7 +12,7 @@ public class CoastGuard extends GenericSearch{
     static int [] dy = {0,0,-1,1};
     static int maxCapacity; // do not change ya gama3a!!
     static PrintWriter pw = new PrintWriter(System.out);
-    static HashSet<State>vis ;
+//    static HashSet<State>vis ;
     static int expand=0; // number of expanded nodes
 
     final static int wreckTime =-19;
@@ -42,7 +42,7 @@ public class CoastGuard extends GenericSearch{
     }
     public static String solve(String grid, String strategy, boolean visualize) {
         Node initialNode = decode(grid);
-        vis = new HashSet<>();
+//        vis = new HashSet<>();
         switch (strategy) {
             case ("BF"): {
                 return backTrack(bfs(initialNode),visualize);
@@ -83,7 +83,7 @@ public class CoastGuard extends GenericSearch{
         int stationsNo= (int) (Math.random()*(maxTotal-shipNo-1))+1;
         System.out.println("stations: "+stationsNo+" ships: "+shipNo);
         int pos= (int) (Math.random()*maxTotal);
-        sb.append(m+","+n+";"+c+";"+pos/n+","+pos%n+";");
+        sb.append(m).append(",").append(n).append(";").append(c).append(";").append(pos / n).append(",").append(pos % n).append(";");
         boolean[] vis = new boolean[maxTotal];
         vis[pos]=true;
         while(stationsNo>0){
@@ -160,6 +160,7 @@ public class CoastGuard extends GenericSearch{
     }
 
     public static Node bfs(Node node) {
+        HashSet<State>vis = new HashSet<>();
         Queue<Node> q= new LinkedList<>();
         q.add(node);
         while (!q.isEmpty()){
@@ -256,7 +257,7 @@ public class CoastGuard extends GenericSearch{
 
         //todo plan;deaths;retrieved;nodes refer to sheet
         StringBuilder sb= new StringBuilder("");
-        StringBuilder sbDebug= new StringBuilder("");
+
         int nodes=1;
        while(n.parent!=null){
            StringBuilder action=findAction(n.parent,n);
@@ -264,13 +265,10 @@ public class CoastGuard extends GenericSearch{
            if(visualize) {stackViz.add(visualize(n));
            stackViz.add(new StringBuilder("\naction taken :").append(action.reverse().append("\n\n")));
            }
-//           String pos="("+n.parent.position.x+","+n.parent.position.y+")";
-//           sbDebug.append(findAction(n.parent,n).reverse());
-//           sbDebug.append(new StringBuilder(pos).reverse());
+
            n=n.parent;
            if(n.parent!=null){
                sb.append(",");
-//               sbDebug.append(",");
            }
            nodes++;
        }
@@ -345,7 +343,7 @@ public class CoastGuard extends GenericSearch{
     public static Node dfs(Node node, int limit) {
         Stack<Node> stack= new Stack<>();
         stack.add(node);
-        vis = new HashSet<>();
+        HashSet<State>vis = new HashSet<>();
         while (!stack.isEmpty()){
             Node n = stack.pop();
             if(isGoal(n)){
@@ -403,6 +401,7 @@ public class CoastGuard extends GenericSearch{
     }
 
     public static Node greedy(Node node, int heuristicChoice) {
+        HashSet<State>vis = new HashSet<>();
         node.heuristic=heuristicChoice==1?heuristic1(node): heuristic2(node);
         PriorityQueue<Node> pq=new PriorityQueue<>();
         pq.add(node);
@@ -484,6 +483,7 @@ public class CoastGuard extends GenericSearch{
     }
     //old costs = pickup=1 drop=2 retrieve=3 pos=5
     public static Node Astar(Node node, int heuristicChoice) {
+        HashSet<State>vis = new HashSet<>();
         //cost equal exp 1: pickup condition(pickedup all passenger ==>death-1) , 2: retrieve condition (time = -19 ==>black-1)
         node.heuristic=(heuristicChoice==1?heuristic1(node): heuristic2(node));
 
@@ -550,7 +550,7 @@ public class CoastGuard extends GenericSearch{
         return null;
     }
     public static Node UniformCost(Node node) {
-
+        HashSet<State>vis = new HashSet<>();
         PriorityQueue<Node> pq=new PriorityQueue<>();
         pq.add(node);
         while (!pq.isEmpty()){
