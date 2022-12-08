@@ -28,7 +28,7 @@ public class CoastGuard extends GenericSearch{
         String grid0 = "5,6;50;0,1;0,4,3,3;1,1,90;";
         String gridTest = "3,2;50;0,1;0,2,1,2;1,1,90;";
         String grid2X2="2,2;100;0,0;1,0;1,1,20;";
-
+        System.out.println(genGrid());
 //        decode(gridTest);
 
         System.out.println(solve(grid2X2,"BF",false));
@@ -78,14 +78,34 @@ public class CoastGuard extends GenericSearch{
         int m = (int) (Math.random()*11)+5;
         int n = (int) (Math.random()*11)+5;
         int c = (int) (Math.random()*71)+30;
-        int cx=(int) (Math.random()*m);
-        int cy=(int) (Math.random()*n);
-        sb.append(m+","+n+";"+c+cx+cy);
         int maxTotal =m*n;
-        int stationsNo= (int) (Math.random()*maxTotal-2)+1;
-        int passNo= (int) (Math.random()*maxTotal-stationsNo-1)+1;
-        //todo complete
-        return "";
+        int shipNo= (int) (Math.random()*(maxTotal-2))+1;
+        int stationsNo= (int) (Math.random()*(maxTotal-shipNo-1))+1;
+        System.out.println("stations: "+stationsNo+" ships: "+shipNo);
+        int pos= (int) (Math.random()*maxTotal);
+        sb.append(m+","+n+";"+c+";"+pos/n+","+pos%n+";");
+        boolean[] vis = new boolean[maxTotal];
+        vis[pos]=true;
+        while(stationsNo>0){
+            pos= (int) (Math.random()*maxTotal);
+            if(vis[pos])continue;
+            vis[pos]=true;
+            sb.append(pos/n+","+pos%n+",");
+            stationsNo--;
+        }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append(";");
+        while(shipNo>0){
+            pos= (int) (Math.random()*maxTotal);
+            int capacity = (int)(Math.random()*(101));
+            if(vis[pos])continue;
+            vis[pos]=true;
+            sb.append(pos/n+","+pos%n+","+capacity+",");
+            shipNo--;
+        }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append(";");
+        return sb.toString();
     }
 
     private static Node decode(String s){
@@ -147,11 +167,11 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
-            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes,n.time))){
                 continue;
             }
             expand++;
-            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes,n.time));
             //naming
             Pair pos = n.position;
             int time= n.time;
@@ -331,12 +351,12 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
-            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes,n.time))){
                 continue;
             }
             if(n.time==limit)continue;
             expand++;
-            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes,n.time));
             Pair pos = n.position;
             int time= n.time;
             int remCapacity= n.remCap;
@@ -391,11 +411,11 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
-            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes,n.time))){
                 continue;
             }
             expand++;
-            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes,n.time));
 
             Pair pos = n.position;
             int time= n.time;
@@ -474,11 +494,11 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
-            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes,n.time))){
                 continue;
             }
             expand++;
-            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes,n.time));
             Pair cost = cost(n);
             Pair pos = n.position;
             int time= n.time;
@@ -539,11 +559,11 @@ public class CoastGuard extends GenericSearch{
             if(isGoal(n)){
                 return n;
             }
-            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes))){
+            if(vis.contains(new State(n.position,n.remCap,n.saved,n.boxes,n.time))){
                 continue;
             }
             expand++;
-            vis.add(new State(n.position,n.remCap,n.saved,n.boxes));
+            vis.add(new State(n.position,n.remCap,n.saved,n.boxes,n.time));
             Pair cost = cost(n);
             Pair pos = n.position;
             int time= n.time;
