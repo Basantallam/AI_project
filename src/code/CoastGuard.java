@@ -97,7 +97,7 @@ public class CoastGuard extends GenericSearch{
         sb.append(";");
         while(shipNo>0){
             pos= (int) (Math.random()*maxTotal);
-            int capacity = (int)(Math.random()*(101));
+            int capacity = (int)(Math.random()*(100))+1;
             if(vis[pos])continue;
             vis[pos]=true;
             sb.append(pos/n+","+pos%n+","+capacity+",");
