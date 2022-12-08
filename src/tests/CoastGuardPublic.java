@@ -28,32 +28,12 @@ public class CoastGuardPublic {
 	String grid10= "10,6;59;1,7;0,0,2,2,3,0,5,3;1,3,69,3,4,80,4,7,94,4,9,14,5,2,39;";
 
 
-	String gridTest= "6,11;71;4,5;0,0,5,4,2,3,3,3,4,2,3,10,0,4,5,8,1,6,1,1;3,7,97,0,7,35,5,7,35,2,0,78,5,5,90,4,6,78,0,2,63,2,2,12,3,1,58,4,8,53,2,9,95,2,4,22,1,10,65,0,1,21,4,7,67,2,8,74,5,1,6,5,10,45;";
-
-
-	@Test()
-	public void testOurs() throws Exception {
-		String solution = CoastGuard.solve(gridTest, "BF", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(gridTest, solution));
-	}
 
 	@Test(timeout = 10000)
 	public void testa0() throws Exception {
 		String solution = CoastGuard.solve(grid0, "BF", false);
 		solution = solution.replace(" ", "");
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid0, solution));
-	}
-	// just for testing genGrid() todo: remove before submit
-	@Test(timeout = 300000)
-	public void testGego() throws Exception {
-//		String grid = CoastGuard.genGrid();
-//		String grid = "12,9;77;8,3;3,8,3,2,5,7,0,5,4,5,10,8,11,6,5,8,2,0,8,5,9,2,6,8,1,7,11,3,8,2,6,2,11,2,1,8,6,1,5,4,3,6,4,7,4,3,6,3,10,1,5,5,7,6,5,6,8,8,7,1,3,7,8,0,2,5,0,1,4,6,10,7,6,5,11,5,10,0,2,1,8,7,7,4,1,1,11,8,0,8,9,1,9,6,8,1,1,3,7,3,3,4;3,3,93,1,2,24,5,3,58,7,5,16,4,8,91,6,0,33,2,2,56,11,4,88,10,5,70,7,2,36,5,2,0;";
-		String grid="6,11;71;4,5;0,0,5,4,2,3,3,3,4,2,3,10,0,4,5,8,1,6,1,1;3,7,97,0,7,35,5,7,35,2,0,78,5,5,90,4,6,78,0,2,63,2,2,12,3,1,58,4,8,53,2,9,95,2,4,22,1,10,65,0,1,21,4,7,67,2,8,74,5,1,6,5,10,45;";
-		System.out.println(grid);
-		String solution = CoastGuard.solve(grid, "AS1", false);
-		solution = solution.replace(" ", "");
-		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid, solution));
 	}
 
 	@Test(timeout = 10000)
