@@ -18,11 +18,11 @@ public class State {
     }
 
     @Override
-    public boolean equals(Object o) { // Adding a condition on time todo: check the condition
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         State state = (State) o;
-        return savedSoFar == state.savedSoFar && boxes == state.boxes && remCap == state.remCap && time >= state.time && pos.equals(state.pos);
+        return  pos.equals(state.pos) && savedSoFar == state.savedSoFar && boxes == state.boxes && remCap == state.remCap  && time >= state.time ;
     }
 
     @Override

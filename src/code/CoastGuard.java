@@ -1,26 +1,22 @@
 package code;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 public class CoastGuard extends GenericSearch{
     static int passengers=0; // total number of passengers on all ships to calc el deaths
-    static HashSet<Pair>stations;
+    static HashSet<Pair>stations; // staions location
     static int n;
     static int m;
     static int [] dx = {-1,1,0,0};
     static int [] dy = {0,0,-1,1};
     static int maxCapacity; // maximum capacity of coast guard
-    static PrintWriter pw = new PrintWriter(System.out);
     static int expand=0; // number of expanded nodes
-    final static int wreckTime =-19;
-    public static void main(String[] args) throws IOException { // for personal testing
+    final static int wreckTime =-19; // time at which ship is wreck as the ship till 0 has passengers from 0 till-19 it is sunk and from -19 it is wreck
+    public static void main(String[] args)  { // for personal testing
         String grid0 = "5,6;50;0,1;0,4,3,3;1,1,90;";
         String gridTest = "3,2;50;0,1;0,2,1,2;1,1,90;";
         String grid2X2="2,2;100;0,0;1,0;1,1,20;";
         System.out.println(genGrid());
         System.out.println(solve(grid2X2,"BF",false));
-        pw.flush();pw.close();
     }
 
     public static String solve(String grid, String strategy, boolean visualize) {
@@ -51,7 +47,6 @@ public class CoastGuard extends GenericSearch{
                 return backTrack(UniformCost(initialNode),visualize);
             }
         }
-        pw.flush();pw.close();
             return "";
     }
 
@@ -63,7 +58,7 @@ public class CoastGuard extends GenericSearch{
         int maxTotal =m*n;
         int shipNo= (int) (Math.random()*(maxTotal-2))+1;
         int stationsNo= (int) (Math.random()*(maxTotal-shipNo-1))+1;
-        System.out.println("stations: "+stationsNo+" ships: "+shipNo);
+
         int pos= (int) (Math.random()*maxTotal);
         sb.append(m).append(",").append(n).append(";").append(c).append(";").append(pos / n).append(",").append(pos % n).append(";");
         boolean[] vis = new boolean[maxTotal];
@@ -114,7 +109,7 @@ public class CoastGuard extends GenericSearch{
                     initialX = Integer.parseInt(entity[0]);
                     initialY = Integer.parseInt(entity[1]);
                     break;
-                case 3:
+                case 3: // stations
                     for (int j = 0; j < entity.length; j+=2) {
                         int x = Integer.parseInt(entity[j]);
                         int y = Integer.parseInt(entity[j+1]);
@@ -173,7 +168,7 @@ public class CoastGuard extends GenericSearch{
                     q.add(new Node(pos,time+1,maxCapacity,ships,n,n.boxes,n.saved+(maxCapacity-remCapacity)));
 
             }
-            for(int i=0;i<4;i++){
+            for(int i=0;i<4;i++){ // 4 positions
                 Pair newPosition = new Pair(pos.x+dx[i],pos.y+dy[i]);
                 if(isValid(newPosition)){
                     q.add(new Node(newPosition,time+1,remCapacity,ships,n,n.boxes,n.saved));
@@ -186,11 +181,10 @@ public class CoastGuard extends GenericSearch{
     private static Node pickUp(Node n, Pair pos, int time, int remCapacity, HashMap<Pair, Ship> ships, int remPassengers) {//I am pickingUp at my state at time: time
         int takenPassengers=Math.min(remPassengers, remCapacity);
         Ship newShip = new Ship(takenPassengers==remPassengers?time+1:time, remPassengers -takenPassengers);
-        Node childPickUp =new Node(pos, time +1, remCapacity -takenPassengers,deepCloneShip(ships, pos,newShip), n, n.boxes, n.saved);
-        return childPickUp;
+        return new Node(pos, time +1, remCapacity -takenPassengers,deepCloneShip(ships, pos,newShip), n, n.boxes, n.saved);
     }
 
-    private static HashMap<Pair,Ship> deepCloneShip(HashMap<Pair,Ship> original,Pair pos,Ship newShip){//will clone hm and newship
+    private static HashMap<Pair,Ship> deepCloneShip(HashMap<Pair,Ship> original,Pair pos,Ship newShip){//will clone hm and new ship and if we want to remove ship
         HashMap<Pair,Ship> hm = new HashMap<>();
         for (Pair key: original.keySet()) {
             hm.put(key,original.get(key));
@@ -202,15 +196,16 @@ public class CoastGuard extends GenericSearch{
         return hm;
     }
 
-    private static boolean isGoal(Node n){
-        if(n.remCap!=maxCapacity)return false;
+    private static boolean isGoal(Node n){ // check if we reached a goal
+        if(n.remCap!=maxCapacity)return false; // Agent's boat has to ber empty
         boolean res=true;
         ArrayList<Pair> toRemove=new ArrayList<>();
         for (Pair key: n.ships.keySet()) {
             Ship s =n.ships.get(key);
             int remPassengers=s.remPass-(n.time-s.lastTimeStamp);
-            if(remPassengers <= wreckTime)toRemove.add(key);
-            else {
+            if(remPassengers <= wreckTime) // if remaining passengers reached 0 and no black box to retrieve
+                toRemove.add(key);
+            else { // either there are passengers alive or a black box to retrieve
                 res=false;
                 break;
             }
@@ -222,10 +217,10 @@ public class CoastGuard extends GenericSearch{
     }
 
     private static String backTrack(Node n,boolean visualize){
+        if(n ==null)return "fail";
         Stack<StringBuilder> stackViz =new Stack<>();
         Node finalNode=n;
-        StringBuilder sb= new StringBuilder("");
-        int nodes=1;
+        StringBuilder sb= new StringBuilder();
        while(n.parent!=null){
            StringBuilder action=findAction(n.parent,n);
            sb.append(action.reverse());
@@ -236,23 +231,23 @@ public class CoastGuard extends GenericSearch{
            if(n.parent!=null){
                sb.append(",");
            }
-           nodes++;
        }
        if(visualize) stackViz.add(visualize(n));
        String plan=sb.reverse()+"";
        int deaths=calcDeaths(finalNode);
        int retrieved=finalNode.boxes;
-       StringBuilder print =new StringBuilder("");
+       StringBuilder print =new StringBuilder();
         while (!stackViz.isEmpty()) {
             print.append(stackViz.pop());
         }
+        System.out.println(print);
         return plan+";"+deaths+";"+retrieved+";"+expand;
     }
 
     private static StringBuilder visualize(Node n) {
-        StringBuilder print = new StringBuilder("");
-        print.append("Time :"+n.time+"\n");
-        print.append("Agent position :"+ n.position+", boat carrying :" +(maxCapacity-n.remCap)+"\n");
+        StringBuilder print = new StringBuilder();
+        print.append("Time :").append(n.time).append("\n");
+        print.append("Agent position :").append(n.position).append(", boat carrying :").append(maxCapacity - n.remCap).append("\n");
         boolean first =true;
         for (Pair pos:n.ships.keySet()){
             Ship s = n.ships.get(pos);
@@ -262,7 +257,7 @@ public class CoastGuard extends GenericSearch{
                     first=false;
                 }
                 else print.append(", ");
-                print.append(pos+" => ");
+                print.append(pos).append(" => ");
                 print.append(s.visualize(n.time));
             }
         }
@@ -315,8 +310,8 @@ public class CoastGuard extends GenericSearch{
             int time= n.time;
             int remCapacity= n.remCap;
             HashMap<Pair,Ship>ships= n.ships;
-            // ship, station, box
-            if(ships.containsKey(pos)){//todo check time  w rempass relation
+            // ship, box
+            if(ships.containsKey(pos)){
                 Ship s = ships.get(pos);
                 int remPassengers=s.remPass-(time-s.lastTimeStamp);
                 if(remPassengers <= wreckTime){ // wreck ship
@@ -437,7 +432,7 @@ public class CoastGuard extends GenericSearch{
 
     public static Node Astar(Node node, int heuristicChoice) {
         HashSet<State>vis = new HashSet<>();
-        //cost equal exp 1: pickup condition(pickedup all passenger ==>death-1) , 2: retrieve condition (time = -19 ==>black-1)
+        //cost equal exp 1: pickup condition(picked up all passenger ==>death-1) , 2: retrieve condition (time = -19 ==>black-1)
         node.heuristic=(heuristicChoice==1?heuristic1(node): heuristic2(node));
         PriorityQueue<Node> pq=new PriorityQueue<>();
         pq.add(node);
@@ -465,14 +460,14 @@ public class CoastGuard extends GenericSearch{
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                     Node child=new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved);
                     child.heuristic=(heuristicChoice==1?heuristic1(child): heuristic2(child));
-                    child.cost=(remPassengers==wreckTime-1?new Pair(cost.x,cost.y-1):cost).add(n.cost);
+                    child.cost=(remPassengers==(wreckTime+1)?new Pair(cost.x,cost.y-1):cost).add(n.cost);
                     pq.add(child);
                 }
                 else {//pickup
                     if(remCapacity>0){
                         Node childPickUp = pickUp(n, pos, time, remCapacity, ships, remPassengers);
                         childPickUp.heuristic=heuristicChoice==1?heuristic1(childPickUp): heuristic2(childPickUp);
-                        Boolean tookAll=ships.get(pos).remPass==0;
+                        boolean tookAll=ships.get(pos).remPass==0;
                         childPickUp.cost=tookAll?new Pair(cost.x-1,cost.y):cost;
                         childPickUp.cost=childPickUp.cost.add(n.cost);
                         pq.add(childPickUp);
@@ -527,13 +522,13 @@ public class CoastGuard extends GenericSearch{
                     n.ships=deepCloneShip(ships,pos,null);
                 }else if(remPassengers<=0){//retrieve black box and remove ship
                     Node child=new Node(pos,time+1,remCapacity,deepCloneShip(ships,pos,null),n,n.boxes+1,n.saved);
-                    child.cost=(remPassengers==wreckTime-1?new Pair(cost.x,cost.y-1):cost).add(n.cost);
+                    child.cost=(remPassengers==wreckTime+1?new Pair(cost.x,cost.y-1):cost).add(n.cost);
                     pq.add(child);
                 }
                 else {//pickup
                     if(remCapacity>0){
                         Node childPickUp = pickUp(n, pos, time, remCapacity, ships, remPassengers);
-                        Boolean tookAll=ships.get(pos).remPass==0;
+                        boolean tookAll=ships.get(pos).remPass==0;
                         childPickUp.cost=tookAll?new Pair(cost.x-1,cost.y):cost;
                         childPickUp.cost=childPickUp.cost.add(n.cost);
                         pq.add(childPickUp);
@@ -588,23 +583,26 @@ public class CoastGuard extends GenericSearch{
 
     private static int heuristic1Cool(Node n){
         int res=0;
+        int maxNoPassengers=-19;
         for (Ship s: n.ships.values()) {
             int remPassengers=s.remPass-(n.time-s.lastTimeStamp);
-            Math.max(wreckTime,remPassengers);
+            maxNoPassengers =Math.max(maxNoPassengers,remPassengers);
             if(remPassengers>0)
                 res+=4;
             else if(remPassengers>wreckTime)res+=1;
         }
-        res=Math.min(res,wreckTime+20);
+        res=Math.min(res,maxNoPassengers+19);
         if(res ==0) if(n.remCap!=maxCapacity)res=1;
         return res;
     }
 
     private static int heuristic2Cool(Node n){ //similar but dominates heuristic 1
         int res=0;
+        int maxNoPassengers=-19;
+
         for (Ship s: n.ships.values()) {
             int remPassengers=s.remPass-(n.time-s.lastTimeStamp);
-            Math.max(wreckTime,remPassengers);
+            maxNoPassengers = Math.max(maxNoPassengers,remPassengers);
             if(remPassengers>0){
                 int pickupTimes=(remPassengers+maxCapacity+1)/maxCapacity;
                 res+=pickupTimes*3+1;
@@ -612,7 +610,7 @@ public class CoastGuard extends GenericSearch{
 
             else if(remPassengers>wreckTime)res+=1;
         }
-        res=Math.min(res,wreckTime+20);
+        res=Math.min(res,maxNoPassengers+19);
         if(res ==0) if(n.remCap!=maxCapacity)res=1;
         return res;
     }

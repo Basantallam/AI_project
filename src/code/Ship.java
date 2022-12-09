@@ -2,7 +2,7 @@ package code;
 
 public class Ship{
     int lastTimeStamp; //initially 0
-    int remPass; //initially total passengers
+    int remPass; //initially total passengers ,changes only when visits the ship
 
     public Ship(int t, int rem){
         lastTimeStamp=t;
@@ -21,7 +21,7 @@ public class Ship{
     }
     public String visualize(int time){
         int rem = remPass-(time-lastTimeStamp);
-        int passengersAlive = rem>0?rem:0;
+        int passengersAlive = Math.max(rem, 0);
         int boxDamage = rem>0?0:Math.abs(rem)+1;
         return "Passengers alive :"+passengersAlive+", Black Box Damage :"+boxDamage;
     }
